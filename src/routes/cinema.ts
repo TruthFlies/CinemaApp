@@ -29,8 +29,6 @@ cinemaRouter.post(
 
            
             /**
-             * Using UserId from Request object to start with.
-             * This can be changed later to fetch from session instead after authorization/authentication is implemented
              * 
              * @param
              * title:string Name of the Cinema
