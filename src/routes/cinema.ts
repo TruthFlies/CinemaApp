@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { body } from 'express-validator';
+import { body,validationResult } from 'express-validator';
 import { Cinema } from '../models/cinema';
 
 import logger from "../utils/logging";
@@ -21,6 +21,13 @@ cinemaRouter.post(
     validateTitleAndSeats,
     async (req: Request, res: Response) => {
         try {
+            const result = validationResult(req);
+            if (!result.isEmpty()) {
+                logger.info(`Error creating Cinema. ${result.array()}`)
+                return res.status(400).send({ errors: result.array() });
+            }
+
+           
             /**
              * Using UserId from Request object to start with.
              * This can be changed later to fetch from session instead after authorization/authentication is implemented
@@ -41,16 +48,18 @@ cinemaRouter.post(
 
             // Save in the database
             await newCinema.save();
-            res.status(201).send(newCinema.id);
+            
+            logger.info(`Cinema created. ${newCinema.id}`)
+            res.status(201).send({ id: newCinema.id });
         } catch (e) {
             let result;
             if (typeof e === "string") {
-                result=e.toUpperCase()
+                result = e.toUpperCase()
             } else if (e instanceof Error) {
-                result=e.message
+                result = e.message
             }
             logger.info(`Error creating Cinema. ${result}`)
-            res.status(500).send('Error creating Cinema');
+            res.status(500).send({ errors: 'Error creating Cinema'});
         }
     }
 );
