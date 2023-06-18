@@ -9,10 +9,10 @@ import { Cinema } from '../models/cinema';
 const bookingRouter = Router();
 
 // Function that checks if title and Seats are valid
-const validateCinemaAndSeatNo = [
-  body('cinemaId').not().isEmpty().custom((input: string) => Types.ObjectId.isValid(input)).withMessage('Cinema Id is required'),
-  body('seatNo').isInt({ gt: 0 }).withMessage('SeatNo must be greater than 0'),
-];
+const validateSeatNo = body('seatNo').isInt({ gt: 0 }).withMessage('SeatNo must be greater than 0');
+
+// Function that checks if title and Seats are valid
+const validateCinema = body('cinemaId').not().isEmpty().custom((input: string) => Types.ObjectId.isValid(input)).withMessage('Cinema Id is required');
 
 /**
  * Create a new booking
@@ -20,12 +20,12 @@ const validateCinemaAndSeatNo = [
  */
 bookingRouter.post(
   '/single',
-  validateCinemaAndSeatNo,
+  [validateCinema, validateSeatNo],
   async (req: Request, res: Response) => {
     try {
       const result = validationResult(req);
       if (!result.isEmpty()) {
-        logger.info(`Error booking a ticket. ${result.array()}`)
+        logger.info(`Error booking a ticket. ${result.array().join(',')}`)
         return res.status(400).send({ errors: result.array() });
       }
 
@@ -87,12 +87,12 @@ bookingRouter.post(
  */
 bookingRouter.post(
   '/double',
-  validateCinemaAndSeatNo,
+  [validateCinema],
   async (req: Request, res: Response) => {
     try {
       const result = validationResult(req);
       if (!result.isEmpty()) {
-        logger.info(`Error booking a ticket. ${result.array()}`)
+        logger.info(`Error booking a ticket. ${result.array().join(',')}`)
         return res.status(400).send({ errors: result.array() });
       }
 
@@ -113,34 +113,42 @@ bookingRouter.post(
         return res.status(400).send({ errors: 'Cinema not found' });
       }
 
-
-      const allBookedSeats = await Booking.find({
-        cinemaId: cinema.id
-      });
+      const allBookedSeats = await Booking.find({ "cinema": cinema });
       if (allBookedSeats.length === cinema.seats) {
         return res.status(400).send({ errors: 'All seats booked' });
       }
-
+      // get only the list of seatNo
       const bookedSeats = allBookedSeats.map((booking) => booking.seatNo).sort();
       let startIndex = -99
-      for (let curr = 1; curr <= cinema.seats; curr++) {
-        //Check if current (curr) is already Booked
-        if (bookedSeats.indexOf(curr))
-          continue;
-        else {
-          if (bookedSeats.indexOf(curr++)) {
-            //Cuurent is not booked, But Next is so skip and continue with next
-            continue
+
+      // If No Seats booked and Cinema has more than 1 seats
+      if (bookedSeats.length === 0 && cinema.seats >= 1) {
+        startIndex = 1
+      } else {
+        for (let curr = 1; curr <= cinema.seats; curr++) {
+          //Check if current (curr) is already Booked
+          if (bookedSeats.indexOf(curr) != -1){
+            continue;
           }
           else {
-            //curent already incremented so current-1,current is free
-            startIndex = curr - 1;
-            break;
+            if (bookedSeats.indexOf(curr++) != -1) {
+              //Cuurent is not booked, But Next is so skip and continue with next
+              continue
+            }
+            else {
+              //curent already incremented so current-1,current is free
+              startIndex = curr - 1;
+              break;
+            }
           }
         }
-
       }
-
+      if (startIndex < 0) {
+        logger.info(`Total Seats in Cinema ${cinema.seats}`);
+        console.log(`All Booked Seats `, allBookedSeats)
+        console.log(`Booked Seats `, bookedSeats)
+        return res.status(400).send({ errors: 'Internal Error' });
+      }
       // Build new booking
       const newBooking = Booking.build({
         cinema,
