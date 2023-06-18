@@ -16,7 +16,12 @@ const validateCinema = body('cinemaId').not().isEmpty().custom((input: string) =
 
 /**
  * Create a new booking
- * @route POST /api/booking/create
+ * @route POST /api/booking/single
+ * 
+ * To book a single ticket to a cinema
+ * @param
+ * cinemaId
+ * seatNo
  */
 bookingRouter.post(
   '/single',
@@ -83,7 +88,12 @@ bookingRouter.post(
 
 /**
  * Create a new booking
- * @route POST /api/booking/create
+ * @route POST /api/booking/double
+ * 
+ * To book first two consecutive seats in a cinema
+ * @param
+ * cinemaId
+ * seatNo
  */
 bookingRouter.post(
   '/double',
