@@ -14,12 +14,12 @@ const app = express();
 // Connect to MongoDB
 const mongoUrl: string = MONGODB_URI || "mongodb://";
 mongoose.Promise = bluebird;
-
 mongoose.connect(mongoUrl, { autoIndex: true }).then(
     () => {
         logger.info("Connected to MongoDB.");
     },
 ).catch(err => {
+    //Exit on Error
     logger.error(`MongoDB connection error. Please make sure MongoDB is running.${mongoUrl} ${err}`);
     process.exit(1);
 });
