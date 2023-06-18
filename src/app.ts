@@ -7,7 +7,7 @@ import bluebird from "bluebird";
 
 import { MONGODB_URI, SESSION_SECRET } from "./utils/secret";
 import logger from "./utils/logging";
-
+import { mainRouter } from './routes'
 // Create Express server
 const app = express();
 
@@ -37,6 +37,7 @@ app.use(session({
     })
 }));
 
+
 /**
  * Primary app routes.
  * 
@@ -52,6 +53,7 @@ app.use(session({
  * API routes.
  * Main controller route for business logic
  */
+app.use('/api', mainRouter)
 
 
 export default app;
