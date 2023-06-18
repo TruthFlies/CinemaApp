@@ -1,0 +1,38 @@
+{
+  "name": "cinemaapp",
+  "version": "1.0.0",
+  "description": "A Cinema ticket purchasing platform",
+  "scripts": {
+    "build-ts": "tsc",
+    "build": "npm run build-ts",
+    "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
+    "serve-debug": "nodemon --inspect dist/server.js",
+    "serve": "node dist/server.js",
+    "start": "npm run serve",
+    "test": "jest --forceExit --coverage --verbose",
+    "watch-node": "nodemon dist/server.js",
+    "watch-ts": "tsc -w"
+  },
+  "author": "Sagar Ringe",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express-session": "^1.17.7",
+    "async": "^3.2.4",
+    "bcrypt-nodejs": "^0.0.3",
+    "bluebird": "^3.7.2",
+    "body-parser": "^1.20.2",
+    "compression": "^1.7.4",
+    "connect-mongo": "^5.0.0",
+    "dotenv": "^16.3.1",
+    "errorhandler": "^1.5.1",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "express-validator": "^7.0.1",
+    "mongoose": "^7.3.0",
+    "winston": "^3.9.0"
+  },
+  "devDependencies": {
+    "@types/bluebird": "^3.5.38",
+    "@types/errorhandler": "^1.5.0"
+  }
+}
