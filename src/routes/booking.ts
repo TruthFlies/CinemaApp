@@ -125,28 +125,29 @@ bookingRouter.post(
       if (bookedSeats.length === 0 && cinema.seats >= 1) {
         startIndex = 1
       } else {
-        for (let curr = 1; curr <= cinema.seats; curr++) {
+        for (let curr = 1; curr < cinema.seats-1; curr++) {
           //Check if current (curr) is already Booked
           if (bookedSeats.indexOf(curr) != -1){
             continue;
           }
           else {
-            if (bookedSeats.indexOf(curr++) != -1) {
+            if (bookedSeats.indexOf(++curr) != -1) {
               //Cuurent is not booked, But Next is so skip and continue with next
               continue
             }
             else {
+              
+              logger.debug(`Booked Seats `, bookedSeats)
               //curent already incremented so current-1,current is free
               startIndex = curr - 1;
+              logger.debug(`startIndex `,startIndex,  )
               break;
             }
           }
         }
       }
       if (startIndex < 0) {
-        logger.info(`Total Seats in Cinema ${cinema.seats}`);
-        console.log(`All Booked Seats `, allBookedSeats)
-        console.log(`Booked Seats `, bookedSeats)
+        logger.debug(`Total Seats in Cinema ${cinema.seats}`);
         return res.status(400).send({ errors: 'Internal Error' });
       }
       // Build new booking
