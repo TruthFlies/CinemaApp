@@ -10,10 +10,10 @@ export interface BookingAttributes {
 interface BookingDoc extends Document {
 
   cinema: CinemaDoc,
-  seatNo: string;
+  seatNo: number;
   version: number;
   isReserved(): Promise<boolean>;
-  isValidSeat(): Promise<boolean>;
+  isValidSeat(): Promise<number[]>;
 }
 
 interface BookingModel extends Model<BookingDoc> {
