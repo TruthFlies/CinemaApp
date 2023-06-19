@@ -5,6 +5,7 @@ import { Booking } from '../models/booking';
 
 import logger from "../utils/logging";
 import { Cinema } from '../models/cinema';
+import { checkSeatCinemaInCache,addSeatCinema } from '../utils/cache';
 
 const bookingRouter = Router();
 
@@ -60,14 +61,28 @@ bookingRouter.post(
       if (isValid) {
         return res.status(400).send({ errors: 'SeatNo is invalid' });
       }
+      // Check that the cache does not contain the seat for handling concurrent requests
+      if(!checkSeatCinemaInCache(cinema.id, seatNo)) {
+        return res.status(400).send({ errors: 'Seat already Reserved' });
+      }
+      //Since the seat is available we need to lock it and add it in cache
+      addSeatCinema(cinema.id, seatNo);
+
+
       // Make sure the ticket has not yet been reserved
       const isReserved = await newBooking.isReserved();
       if (isReserved) {
         return res.status(400).send({ errors: 'Seat already Reserved' });
       }
+      
 
       // Save in the database
       await newBooking.save();
+      /**
+       * This can further be enhanced with adding additional attriute to booking for status
+       * so that it can be configured to be updated after payment process is complete then the booking is finalized.
+       * 
+       *  */ 
 
       logger.info(`Booking created: ${newBooking.id} , Seat Reserved : ${newBooking.seatNo} `)
       res.status(201).send({ id: newBooking.id, seatNo: newBooking.seatNo });
