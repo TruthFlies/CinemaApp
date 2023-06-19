@@ -36,7 +36,8 @@ const cinemaSchema = new Schema(
     },
   }
 );
-
+//Create a index on the schema for making eache cinema unique based on title
+cinemaSchema.index({ title: 1}, { unique: true });
 // Rename version key from __v to verison
 cinemaSchema.set('versionKey', 'version');
 

@@ -41,7 +41,8 @@ const bookingSchema = new Schema(
     },
   }
 );
-
+//Create a index on the schema for making each booking unique based on cinema and seat number
+bookingSchema.index({ cinema: 1, seatNo: 1}, { unique: true });
 // Rename version key from __v to verison
 bookingSchema.set('versionKey', 'version');
 
